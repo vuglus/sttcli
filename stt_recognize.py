@@ -3,29 +3,33 @@ import time
 import urllib3
 import json
 import os
+from stt_parse_asr import parse_asr_messages_to_dialogue
 
 def recognize_audio(config, file_uri: str):
+    """
+    Распознаёт аудио с поддержкой нескольких спикеров и временных меток.
+
+    Возвращает текст в формате:
+    Спикер 2 ∙ 00:00 - 00:02
+    Текст реплики
+    """
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     api_key = config["yacloud"]["api_key"]
     folder_id = config["yacloud"]["folder_id"]
 
-    # имя файла в бакете (только basename)
     file_name = os.path.basename(file_uri)
-    
     print(f"▶ Распознаём речь: {file_name}")
 
     request_data = {
         "uri": file_uri,
         "recognitionModel": {
-            "model": "general:rc",
+            "model": "general",
             "audioFormat": {
-                "containerAudio": {
-                    "containerAudioType": "MP3"
-                }
+                "containerAudio": {"containerAudioType": "MP3"}
             },
             "languageRestriction": {
-                "restrictionType": "WHITELIST",
+                "restrictionType": "WHITELIST", 
                 "languageCode": ["ru-RU"]
             },
             "textNormalization": {
@@ -33,9 +37,9 @@ def recognize_audio(config, file_uri: str):
             }
         },
         "speakerLabeling": {
-            "enable": True,
-            "minSpeakers": 1,
-            "maxSpeakers": 5
+            "speakerLabeling": "SPEAKER_LABELING_ENABLED",
+            "minSpeakers": 2, 
+            "maxSpeakers": 10
         }
     }
 
@@ -52,9 +56,7 @@ def recognize_audio(config, file_uri: str):
     )
 
     if response.status_code != 200:
-        raise RuntimeError(
-            f"Recognition request failed: {response.status_code}\n{response.text}"
-        )
+        raise RuntimeError(f"Recognition request failed: {response.status_code}\n{response.text}")
 
     operation_data = response.json()
     operation_id = operation_data.get("id")
@@ -62,14 +64,14 @@ def recognize_audio(config, file_uri: str):
         raise RuntimeError("Operation ID not found in response")
 
     print(f"▶ Operation ID: {operation_id}")
-    print("⏳ Ожидаем завершения распознавания...")
+    print("⏳ Ожидаем завершения распознавания...", end="", flush=True)
 
     operation_url = f"https://operation.api.cloud.yandex.net/operations/{operation_id}"
 
     while True:
         op_response = requests.get(operation_url, headers=headers, verify=False)
         if op_response.status_code != 200:
-            print(f"Ошибка проверки операции: {op_response.status_code}")
+            print(f"\nОшибка проверки операции: {op_response.status_code}")
             time.sleep(10)
             continue
 
@@ -82,31 +84,23 @@ def recognize_audio(config, file_uri: str):
         print(".", end="", flush=True)
         time.sleep(10)
 
-    # получаем результат
+    # Получаем результат
     speech_response = requests.get(
         f"https://stt.api.cloud.yandex.net/stt/v3/getRecognition?operation_id={operation_id}",
         headers=headers,
-        verify=False,
+        verify=False
     )
     speech_response.raise_for_status()
+    
+    file_name = os.path.basename(file_uri)  # Извлекаем имя файла из file_uri
+    raw_output_file = os.path.splitext(file_name)[0] + '_raw.jsonl'
 
-    # Вместо .json() парсим построчно
-    lines = speech_response.text.strip().split("\n")
-    texts = []
-    for line in lines:
-        try:
-            data = json.loads(line)
-        except json.JSONDecodeError:
-            continue
+    with open(raw_output_file, 'w', encoding='utf-8') as f:
+        f.write(speech_response.text)
 
-        # ищем final или finalRefinement
-        if "result" in data:
-            res = data["result"]
-            for key in ("final", "finalRefinement"):
-                if key in res:
-                    if "alternatives" in res[key]:
-                        for alt in res[key]["alternatives"]:
-                            if "text" in alt:
-                                texts.append(alt["text"])
+    print(f"▶ Сырой ответ сохранен в файл: {raw_output_file}")
 
-    return "\n".join(texts)
+    # Парсим построчно
+    lines = speech_response.text.strip().split("\n")   
+
+    return parse_asr_messages_to_dialogue(lines)

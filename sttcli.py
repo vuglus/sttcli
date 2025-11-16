@@ -2,7 +2,7 @@ import os
 import sys
 import yaml
 from stt_recognize import recognize_audio  # импорт из отдельного файла
-from stt_summarize import summarize  # импорт из отдельного файла
+from yandex_summarize import summarize  # импорт из отдельного файла
 from stt_upload import upload_to_storage
 
 def load_config():
