@@ -12,7 +12,11 @@ echo Обработка файла: %FILE_PATH%
 
 call "%SCRIPT_DIR%sttcli\Scripts\activate.bat"
 
-if "%FILE_EXT%"==".mp3" (
+if "%FILE_EXT%"==".txt" (
+    echo Запуск обработки TXT файла...
+    python "%SCRIPT_DIR%cli_summarize.py" "%FILE_PATH%"
+    pause
+) else if "%FILE_EXT%"==".mp3" (
     echo Запуск обработки MP3 файла...
     python "%SCRIPT_DIR%sttcli.py" "%FILE_PATH%"
     pause
@@ -25,5 +29,6 @@ if "%FILE_EXT%"==".mp3" (
     echo Поддерживаются только .mp3 и .jsonl файлы
     pause
 )
+pause
 
 endlocal

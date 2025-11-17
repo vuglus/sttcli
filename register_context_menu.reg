@@ -1,5 +1,12 @@
 Windows Registry Editor Version 5.00
 
+; Для TXT файлов
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing]
+@="Суммаризировать через STT"
+
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing\command]
+@="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\""
+
 ; Для MP3 файлов
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing]
 @="Обработать через STT"
