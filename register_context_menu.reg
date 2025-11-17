@@ -1,0 +1,15 @@
+Windows Registry Editor Version 5.00
+
+; Для MP3 файлов
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing]
+@="Обработать через STT"
+
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing\command]
+@="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\""
+
+; Для JSONL файлов
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.jsonl\Shell\STT Processing]
+@="Парсить JSONL"
+
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.jsonl\Shell\STT Processing\command]
+@="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\""

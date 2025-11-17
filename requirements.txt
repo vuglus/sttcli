@@ -1,3 +1,5 @@
 PyYAML
 requests
 openai
+boto3
+transformers

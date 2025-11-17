@@ -2,7 +2,9 @@ import sys
 import os
 import yaml
 import datetime
-from yandex_summarize import summarize  # импорт твоей функции summarize
+#from yandex_summarize import summarize  # импорт твоей функции summarize
+#from deepseek_summary import summarize  # импорт твоей функции summarize
+from summarize.local import summarize  # импорт твоей функции summarize
 
 def main():
     if len(sys.argv) < 2:

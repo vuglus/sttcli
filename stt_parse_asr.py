@@ -1,5 +1,6 @@
 import json
 from typing import List, Dict, Any
+from formats.format_ts import format_ts
 
 def parse_asr_messages_to_dialogue(json_messages: List[str]) -> str:
     """
@@ -95,10 +96,10 @@ def format_dialogue(utterances: List[Dict]) -> str:
     for i, utt in enumerate(utterances, 1):
         speaker = f"Спикер {int(utt['channel']) + 1}"
         text = utt['text']
-        start_sec = utt['start_time'] / 1000.0
-        end_sec = utt['end_time'] / 1000.0
+        start_sec = format_ts(int(utt['start_time']))
+        end_sec = format_ts(int(utt['end_time']))
         
-        line = f"{i}. [{speaker}] {start_sec:.2f}-{end_sec:.2f}с: {text}"
+        line = f"{i}. [{speaker}] {start_sec}-{end_sec} : {text}"
         lines.append(line)
     
     return "\n".join(lines)

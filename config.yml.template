@@ -7,6 +7,9 @@ gpt:
   model: "yandexgpt-pro"
   temperature: 0.3
 
+deepseek:
+  api_key:
+
 stt:
   language: "ru-RU"
   sample_rate: 48000
