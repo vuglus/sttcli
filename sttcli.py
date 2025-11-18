@@ -1,9 +1,10 @@
+# speach to text cli interface
 import os
 import sys
 import yaml
-from stt_recognize import recognize_audio  # импорт из отдельного файла
+from recognize.yandex import recognize_audio  # импорт из отдельного файла
 from summarize.yandex import summarize  # импорт из отдельного файла
-from stt_upload import upload_to_storage
+from files.upload import upload_to_storage
 from formats.format_asr import parse_asr_messages_to_dialogue
 from files.tmp import save_dir
 from instruction.choose import choose_instruction
