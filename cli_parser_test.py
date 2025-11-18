@@ -6,7 +6,7 @@
 
 import json
 import sys
-from stt_parse_asr import format_dialogue_from_asr
+from formats.format_asr import format_dialogue_from_asr
 
 def read_json_lines_from_file(filename: str) -> list:
     """

@@ -3,7 +3,6 @@ import time
 import urllib3
 import json
 import os
-from stt_parse_asr import parse_asr_messages_to_dialogue
 
 def recognize_audio(config, file_uri: str):
     """
@@ -91,16 +90,5 @@ def recognize_audio(config, file_uri: str):
         verify=False
     )
     speech_response.raise_for_status()
-    
-    file_name = os.path.basename(file_uri)  # Извлекаем имя файла из file_uri
-    raw_output_file = os.path.splitext(file_name)[0] + '_raw.jsonl'
 
-    with open(raw_output_file, 'w', encoding='utf-8') as f:
-        f.write(speech_response.text)
-
-    print(f"▶ Сырой ответ сохранен в файл: {raw_output_file}")
-
-    # Парсим построчно
-    lines = speech_response.text.strip().split("\n")   
-
-    return parse_asr_messages_to_dialogue(lines)
+    return speech_response.text
