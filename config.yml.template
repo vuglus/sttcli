@@ -2,6 +2,7 @@ yacloud:
   folder_id: "b1gxxx..."              # ID каталога
   oauth_token: "y0_AgAAA..."          # токен доступа
   bucket_name: "speech-uploads"       # бакет для временного хранения
+  max_output: 2500                    # максимальный размер саммари
 
 gpt:
   model: "yandexgpt-pro"
