@@ -29,6 +29,5 @@ if "%FILE_EXT%"==".txt" (
     echo Поддерживаются только .mp3 и .jsonl файлы
     pause
 )
-pause
 
 endlocal

@@ -1,8 +1,15 @@
 Windows Registry Editor Version 5.00
 
 ; Для TXT файлов
-[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing]
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Susummarize]
 @="Суммаризировать через STT"
+
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Susummarize\command]
+@="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\" susummarize"
+
+; Для TXT файлов
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing]
+@="Обработать через STT"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing\command]
 @="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\""

@@ -1,22 +1,22 @@
 import openai
 
 #
-def summarize(config, text):
+def summarize(config, text, instructionType):
     chunks = chunk_text(text)
 
     partial_summaries = []
     for idx, chunk in enumerate(chunks, start=1):
         print(f"Summarizing chunk {idx}/{len(chunks)}...")
-        partial = chunk_summarize(config, chunk, config["instructions"]["summarize"])
+        partial = chunk_summarize(config, chunk, config["instructions"][instructionType])
         partial_summaries.append(f"### Chunk {idx}\n{partial}")
 
     combined_text = "\n\n".join(partial_summaries)
-
-    # финальное summary уже маленькое → точно влезает
-    print("Generating final summary...")
-    final = chunk_summarize(config, combined_text, config["instructions"]["join"])
-
-    return final
+    if len(chunks) > 1 : 
+        # финальное summary уже маленькое → точно влезает
+        print("Generating final summary...")
+        return chunk_summarize(config, combined_text, config["instructions"]["join"])
+    
+    return combined_text
 
 #
 def chunk_summarize(config, text, instruction):

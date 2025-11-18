@@ -3,12 +3,12 @@ import os
 import yaml
 import datetime
 from summarize.yandex import summarize  # импорт твоей функции summarize
-#from summarize.deepseek import summarize  # импорт твоей функции summarize
-#from summarize.local import summarize  # импорт твоей функции summarize
+from instruction.choose import choose_instruction
+from files.tmp import save_local  
 
 def main():
     if len(sys.argv) < 2:
-        print("Использование: python summarize_file.py <имя_файла>")
+        print("Использование: python summarize_file.py <имя_файла> [инструкция]")
         sys.exit(1)
 
     input_path = sys.argv[1]
@@ -16,10 +16,17 @@ def main():
         print(f"Файл не найден: {input_path}")
         sys.exit(1)
 
+    base, ext = os.path.splitext(input_path)
     # Загружаем конфиг
     config_path = os.path.join(os.path.dirname(__file__), "config.yml")
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
+
+    # Выбираем инструкцию
+    if len(sys.argv) >= 3:
+        instruction = sys.argv[2]
+    else:
+        instruction = choose_instruction(config)
 
     # Получаем метаданные файла
     file_name = os.path.basename(input_path)
@@ -34,18 +41,14 @@ def main():
     meta_info = f"Файл: {file_name}\nДата создания: {created_date}\n\n"
     text_with_meta = meta_info + text
 
-    print("→ Генерирую саммари...")
-    summary = summarize(config, text_with_meta)
+    print(f"→ Генерирую саммари с инструкцией '{instruction}'...")
+    summary = summarize(config, text_with_meta, instructionType=instruction)
 
     # Генерируем имя выходного файла
-    base, ext = os.path.splitext(input_path)
-    output_path = f"{base}_summary.txt"
+    output_path = f"{base}_{instruction}.txt"
 
     # Сохраняем результат
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(summary)
-
-    print(f"✅ Саммари сохранено в {output_path}")
+    save_local(base, summary, f".{instruction}.md")
 
 if __name__ == "__main__":
     main()
