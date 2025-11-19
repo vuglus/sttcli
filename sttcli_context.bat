@@ -16,6 +16,10 @@ if "%FILE_EXT%"==".txt" (
     echo Запуск обработки TXT файла...
     python "%SCRIPT_DIR%cli_summarize.py" "%FILE_PATH%"
     pause
+) else if "%FILE_EXT%"==".xml" (
+    echo Запуск обработки XML файла...
+    python "%SCRIPT_DIR%cli_summarize.py" "%FILE_PATH%"
+    pause
 ) else if "%FILE_EXT%"==".mp3" (
     echo Запуск обработки MP3 файла...
     python "%SCRIPT_DIR%sttcli.py" "%FILE_PATH%"

@@ -14,6 +14,13 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing\command]
 @="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\""
 
+; Для XML файлов
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.xml\Shell\STT Processing XML]
+@="Обработать через STT"
+
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.xml\Shell\STT Processing XML\command]
+@="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\""
+
 ; Для MP3 файлов
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing]
 @="Обработать через STT"

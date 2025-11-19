@@ -7,6 +7,7 @@ from summarize.yandex import summarize  # импорт из отдельного
 from files.upload import upload_to_storage
 from formats.format_asr import parse_asr_messages_to_dialogue
 from files.tmp import save_dir
+from files.context import save_context_file, load_context
 from instruction.choose import choose_instruction
 
 def load_config():
@@ -29,6 +30,10 @@ def main():
     else:
         instruction = choose_instruction(config)
 
+    if instruction == "context":
+        save_context_file(file_path)
+        sys.exit(1)
+
     base = os.path.splitext(file_path)[0]    
     # 1. Загружаем файл в Object Storage
     file_url = upload_to_storage(config, file_path)
@@ -45,8 +50,11 @@ def main():
     # 3.1 Сохраняем транскрипт
     save_dir(base, text, ".txt")
 
+    # 3.2 Получаем контекст
+    context = load_context()
+
     # 4. Генерируем summary
-    summary = summarize(config, text, instructionType = instruction)
+    summary = summarize(config, text, instructionType = instruction, context = context)
 
     # 4.1 Сохраняем summary
     save_dir(base, summary, f".{instruction}.md")

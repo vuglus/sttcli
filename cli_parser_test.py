@@ -96,3 +96,4 @@ if __name__ == "__main__":
         print("Запуск теста с примером данных:")
         print()
         test_with_sample_data()
+        

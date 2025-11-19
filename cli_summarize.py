@@ -5,6 +5,7 @@ import datetime
 from summarize.yandex import summarize  # импорт твоей функции summarize
 from instruction.choose import choose_instruction
 from files.tmp import save_local  
+from files.context import save_context_file, load_context
 
 def main():
     if len(sys.argv) < 2:
@@ -28,6 +29,10 @@ def main():
     else:
         instruction = choose_instruction(config)
 
+    if instruction == "context":
+        save_context_file(input_path)
+        sys.exit(1)
+
     # Получаем метаданные файла
     file_name = os.path.basename(input_path)
     created_ts = os.path.getctime(input_path)
@@ -41,8 +46,12 @@ def main():
     meta_info = f"Файл: {file_name}\nДата создания: {created_date}\n\n"
     text_with_meta = meta_info + text
 
+
+    # 3.2 Получаем контекст
+    context = load_context()
+
     print(f"→ Генерирую саммари с инструкцией '{instruction}'...")
-    summary = summarize(config, text_with_meta, instructionType=instruction)
+    summary = summarize(config, text_with_meta, instructionType=instruction, context = context)
 
     # Генерируем имя выходного файла
     output_path = f"{base}_{instruction}.txt"

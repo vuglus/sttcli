@@ -1,13 +1,13 @@
 import openai
 
 #
-def summarize(config, text, instructionType):
+def summarize(config, text, instructionType, context):
     chunks = chunk_text(text)
 
     partial_summaries = []
     for idx, chunk in enumerate(chunks, start=1):
         print(f"Summarizing chunk {idx}/{len(chunks)}...")
-        partial = chunk_summarize(config, chunk, config["instructions"][instructionType])
+        partial = chunk_summarize(config, chunk, config["instructions"][instructionType], context)
         partial_summaries.append(f"### Chunk {idx}\n{partial}")
 
     combined_text = "\n\n".join(partial_summaries)
@@ -19,7 +19,9 @@ def summarize(config, text, instructionType):
     return combined_text
 
 #
-def chunk_summarize(config, text, instruction):
+def chunk_summarize(config, text, instruction, context = ''):
+    if context: 
+        instruction = instruction + context
     client = openai.OpenAI(
         api_key=config["yacloud"]["api_key"],
         base_url="https://rest-assistant.api.cloud.yandex.net/v1",
