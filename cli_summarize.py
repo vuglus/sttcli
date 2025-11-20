@@ -2,10 +2,10 @@ import sys
 import os
 import yaml
 import datetime
-from summarize.yandex import summarize  # импорт твоей функции summarize
 from instruction.choose import choose_instruction
 from files.tmp import save_local  
 from files.context import save_context_file, load_context
+from models import get_model
 
 def main():
     if len(sys.argv) < 2:
@@ -22,6 +22,13 @@ def main():
     config_path = os.path.join(os.path.dirname(__file__), "config.yml")
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
+
+    ModelClass = get_model(config['model_name'])
+    if not ModelClass:
+        print(f"❌ No model for: {config['model_name']}")
+        return
+    summarizer = ModelClass(config)
+
 
     # Выбираем инструкцию
     if len(sys.argv) >= 3:
@@ -51,7 +58,7 @@ def main():
     context = load_context()
 
     print(f"→ Генерирую саммари с инструкцией '{instruction}'...")
-    summary = summarize(config, text_with_meta, instructionType=instruction, context = context)
+    summary = summarizer.summarize(text_with_meta, instruction_type = instruction, context = context)
 
     # Генерируем имя выходного файла
     output_path = f"{base}_{instruction}.txt"

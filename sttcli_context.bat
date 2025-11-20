@@ -2,6 +2,7 @@
 chcp 65001 >nul
 setlocal EnableDelayedExpansion
 
+
 set "SCRIPT_DIR=%~dp0"
 set "FILE_PATH=%~1"
 set "FILE_EXT=%~x1"

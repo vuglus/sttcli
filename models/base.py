@@ -1,0 +1,34 @@
+
+class Summarizer:
+    """Базовый класс для суммаризации текста."""
+    def __init__(self, config):
+        self.config = config
+
+    def summarize(self, text, instruction_type, context=""):
+        chunks = self.chunk_text(text)
+        partial_summaries = []
+
+        for idx, chunk in enumerate(chunks, start=1):
+            print(f"Summarizing chunk {idx}/{len(chunks)}...")
+            partial = self.chunk_summarize(chunk, self.config["instructions"][instruction_type], context)
+            partial_summaries.append(f"### Chunk {idx}\n{partial}")
+
+        combined_text = "\n\n".join(partial_summaries)
+        if len(chunks) > 1:
+            print("Generating final summary...")
+            return self.chunk_summarize(combined_text, self.config["instructions"]["join"])
+        return combined_text
+
+    def chunk_summarize(self, text, instruction, context=""):
+        """Метод для переопределения в наследниках."""
+        raise NotImplementedError("Must implement chunk_summarize in subclass")
+
+    @staticmethod
+    def chunk_text(text, max_chars=70_000):
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = start + max_chars
+            chunks.append(text[start:end])
+            start = end
+        return chunks

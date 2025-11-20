@@ -3,12 +3,12 @@ import os
 import sys
 import yaml
 from recognize.yandex import recognize_audio  # импорт из отдельного файла
-from summarize.yandex import summarize  # импорт из отдельного файла
 from files.upload import upload_to_storage
 from formats.format_asr import parse_asr_messages_to_dialogue
 from files.tmp import save_dir
 from files.context import save_context_file, load_context
 from instruction.choose import choose_instruction
+from models import get_model
 
 def load_config():
     with open("config.yml", "r", encoding="utf-8") as f:
@@ -22,6 +22,14 @@ def main():
         sys.exit(1)
 
     config = load_config()
+
+    ModelClass = get_model(config['model_name'])
+    if not ModelClass:
+        print(f"❌ No model for: {config['model_name']}")
+        return
+
+    summarizer = ModelClass(config)
+
     file_path = sys.argv[1]
 
     # Если инструкция передана через CLI — используем её, иначе спрашиваем
@@ -54,7 +62,7 @@ def main():
     context = load_context()
 
     # 4. Генерируем summary
-    summary = summarize(config, text, instructionType = instruction, context = context)
+    summary = summarizer.summarize(text, instruction_type = instruction, context = context)
 
     # 4.1 Сохраняем summary
     save_dir(base, summary, f".{instruction}.md")
