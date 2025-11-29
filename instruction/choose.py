@@ -21,7 +21,7 @@ def choose_instruction(config, user_enabled = True):
             
         if choice.isdigit():
             if int(choice) == 0: 
-                return 'context'
+                return 'manual'
             idx = int(choice) - 1
             if 0 <= idx < len(instructions):
                 return instructions[idx]
