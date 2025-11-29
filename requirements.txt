@@ -4,3 +4,4 @@ openai
 boto3
 transformers
 gigachat 
+rich

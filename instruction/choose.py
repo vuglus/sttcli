@@ -1,4 +1,4 @@
-def choose_instruction(config, context_enabled = True):
+def choose_instruction(config, user_enabled = True):
     """
     Спрашивает у пользователя, какую инструкцию применять, если не передано через CLI.
     Берёт список ключей из config['instructions'].
@@ -10,8 +10,8 @@ def choose_instruction(config, context_enabled = True):
     instructions = list(instr_dict.keys())
 
     print("Выберите инструкцию анализа:")
-    if context_enabled : 
-        print("0. Сохранить контекст")
+    if user_enabled : 
+        print("0. Ввести вручную")
 
     for i, instr in enumerate(instructions, 1):
         print(f"{i}. {instr}")

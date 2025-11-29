@@ -4,18 +4,11 @@ import yaml
 import datetime
 from instruction.choose import choose_instruction
 from files.tmp import save_local  
-from files.context import save_context_file, load_context
+from files.context import load_context_for, draw_context
 from models import get_model
 
 def main():
-    if len(sys.argv) < 2:
-        print("Использование: python summarize_file.py <имя_файла> [инструкция]")
-        sys.exit(1)
-
-    input_path = sys.argv[1]
-    if not os.path.exists(input_path):
-        print(f"Файл не найден: {input_path}")
-        sys.exit(1)
+    input_path, instruction, output_file = parse_args(sys.argv)
 
     base, ext = os.path.splitext(input_path)
     # Загружаем конфиг
@@ -29,16 +22,18 @@ def main():
         return
     summarizer = ModelClass(config)
 
-
     # Выбираем инструкцию
     if len(sys.argv) >= 3:
         instruction = sys.argv[2]
     else:
         instruction = choose_instruction(config)
 
-    if instruction == "context":
-        save_context_file(input_path)
-        sys.exit(1)
+    # Получаем контекст
+    context = load_context_for(input_path)
+
+    # Отображаем контекст
+    if context != "":
+        draw_context(context)
 
     # Получаем метаданные файла
     file_name = os.path.basename(input_path)
@@ -53,18 +48,56 @@ def main():
     meta_info = f"Файл: {file_name}\nДата создания: {created_date}\n\n"
     text_with_meta = meta_info + text
 
-
-    # 3.2 Получаем контекст
-    context = load_context()
-
     print(f"→ Генерирую саммари с инструкцией '{instruction}'...")
     summary = summarizer.summarize(text_with_meta, instruction_type = instruction, context = context)
 
-    # Генерируем имя выходного файла
-    output_path = f"{base}_{instruction}.txt"
+    if output_file == "": 
+        output_file = base + f".{instruction}.md" 
 
     # Сохраняем результат
-    save_local(base, summary, f".{instruction}.md")
+    save_local(output_file, summary)
 
 if __name__ == "__main__":
     main()
+
+def parse_args(argv):
+    """
+    Разбирает аргументы командной строки и возвращает:
+    - input_path: путь к входному файлу
+    - instruction: тип инструкции (или None)
+    - output_file: путь к файлу вывода (или None)
+    """
+    if len(argv) < 2:
+        print("Использование: python summarize_file.py <файл> [инструкция] [--output файл]")
+        sys.exit(1)
+
+    input_path = argv[1]
+    instruction = None
+    output_file = None
+
+    args = argv[2:]
+
+    i = 0
+    while i < len(args):
+        arg = args[i]
+
+        if arg == "--output":
+            if i + 1 < len(args):
+                output_file = args[i + 1]
+                i += 2
+                continue
+            else:
+                print("❌ Ошибка: после --output должен быть указан файл")
+                sys.exit(1)
+
+        # Если это не флаг, и инструкция ещё не выбрана
+        if instruction is None and not arg.startswith("--"):
+            instruction = arg
+
+        i += 1
+
+    if not os.path.exists(input_path):
+        print(f"Файл не найден: {input_path}")
+        sys.exit(1)
+
+    return input_path, instruction, output_file    

@@ -22,20 +22,8 @@ def save_dir(base_name, content, ext):
     print(f"💾 Файл сохранён: {out_path}")
     return out_path
 
-def save_local(base_name, content, ext):
-    """
-    Сохранение промежуточных файлов
-
-    :param base_name: путь к файлу без расширения (например "audio/file1")
-    :param content: текст для записи
-    :param ext: расширение файла (например ".jsonl")
-    :return: путь к сохранённому файлу
-    """
-    # Имя файла с расширением
-    out_path = base_name + ext
-
-    with open(out_path, "w", encoding="utf-8") as f:
+def save_local(output_file, content):
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(content)
 
-    print(f"💾 Файл сохранён: {out_path}")
-    return out_path
+    print(f"💾 Файл сохранён: {output_file}")

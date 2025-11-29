@@ -2,10 +2,24 @@ Windows Registry Editor Version 5.00
 
 ; Для TXT файлов
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Susummarize]
-@="Суммаризировать через STT"
+@="Суммаризировать через CLIS"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Susummarize\command]
-@="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\" susummarize"
+@="\"D:\\work\\sttcli\\sttcli_context.bat\" \"%1\" summarize"
+
+; Для MD файлов
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Susummarize]
+@="Суммаризировать через CLIS"
+
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Susummarize\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\""
+
+; Для MD файлов
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT AddContext]
+@="Добавить в контекст CLIS"
+
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT AddContext\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\" join --output context.md"
 
 ; Для TXT файлов
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing]
