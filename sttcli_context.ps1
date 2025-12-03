@@ -1,3 +1,4 @@
+
 param(
     [Parameter(Mandatory = $true)]
     [string]$FilePath,
@@ -19,7 +20,7 @@ Write-Host "Текущая директория: $ScriptDir"
 Write-Host "Обработка файла: $FilePath"
 
 # Активация venv
-$activatePath = Join-Path $ScriptDir "sttcli\Scripts\Activate.ps1"
+$activatePath = Join-Path $ScriptDir ".venv\Scripts\Activate.ps1"
 if (Test-Path $activatePath) {
     Write-Host "Активация виртуального окружения..."
     . $activatePath

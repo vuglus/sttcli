@@ -1,5 +1,5 @@
 from .gigachat import GigaChatSummarizer
-from .local import LocalSummarizer
+#from .local import LocalSummarizer
 from .deepseek import DeepSeekSummarizer
 from .yandex import YandexGPTSummarizer
 
@@ -7,7 +7,7 @@ from .yandex import YandexGPTSummarizer
 _models = {
     "gigachat": GigaChatSummarizer,
     "yandex": YandexGPTSummarizer,
-    "local": LocalSummarizer,
+ #   "local": LocalSummarizer,
     "deepseek": DeepSeekSummarizer
 }
 

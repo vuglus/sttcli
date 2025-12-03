@@ -5,3 +5,7 @@ boto3
 transformers
 gigachat 
 rich
+torch
+torchaudio
+pyannote.audio
+python-dotenv

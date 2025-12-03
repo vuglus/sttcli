@@ -3,3 +3,4 @@ sttcli
 __pycache__
 tmp
 data
+.venv

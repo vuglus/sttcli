@@ -3,6 +3,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILE_PATH="$1"
 FILE_EXT="${FILE_PATH##*.}"
+$env:SPEECHBRAIN_STRATEGY = "COPY"
 
 echo "Обработка файла: $FILE_PATH"
 
