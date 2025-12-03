@@ -1,14 +1,11 @@
-# speach to text cli interface
+# Speech to text CLI interface
 import os
 import sys
 import yaml
-from recognize.yandex import recognize_audio  # импорт из отдельного файла
+from recognize.yandex import recognize_audio  # Import from separate file
 from files.upload import upload_to_storage
 from formats.format_asr import parse_asr_messages_to_dialogue
 from files.tmp import save_dir
-from files.context import load_context_for
-from instruction.choose import choose_instruction
-from models import get_model
 
 def load_config():
     with open("config.yml", "r", encoding="utf-8") as f:
@@ -18,52 +15,28 @@ def main():
     config = load_config()
     file_path = sys.argv[1] if len(sys.argv) > 1 else None
     if not file_path:
-        print("Usage: python sttcli.py <path-to-mp3> [instruction]")
+        print("Usage: python sttcli.py <path-to-mp3>")
         sys.exit(1)
-
-    config = load_config()
-
-    ModelClass = get_model(config['model_name'])
-    if not ModelClass:
-        print(f"❌ No model for: {config['model_name']}")
-        return
-
-    summarizer = ModelClass(config)
 
     file_path = sys.argv[1]
 
-    # Если инструкция передана через CLI — используем её, иначе спрашиваем
-    if len(sys.argv) >= 3:
-        instruction = sys.argv[2]
-    else:
-        instruction = choose_instruction(config)
-
-    base = os.path.splitext(file_path)[0]    
-    # 1. Загружаем файл в Object Storage
+    base = os.path.splitext(file_path)[0]
+    # 1. Upload file to Object Storage
     file_url = upload_to_storage(config, file_path)
 
-    # 2. Распознаем речь
+    # 2. Recognize speech
     response = recognize_audio(config, file_url)
 
-    # 2.1 Сохраняем raw JSONL
+    # 2.1 Save raw JSONL
     save_dir(base, response, ".jsonl")
 
-    # 3. Преобразуем ASR → диалог
+    # 3. Convert ASR to dialogue
     text = parse_asr_messages_to_dialogue(response.strip().split("\n"))
 
-    # 3.1 Сохраняем транскрипт
+    # 3.1 Save transcript
     save_dir(base, text, ".txt")
 
-    # 3.2 Получаем контекст
-    context = load_context_for(base)
-
-    # 4. Генерируем summary
-    summary = summarizer.summarize(text, instruction_type = instruction, context = context)
-
-    # 4.1 Сохраняем summary
-    save_dir(base, summary, f".{instruction}.md")
-
-    print("✅ Готово!")
+    print("✅ Done!")
 
 if __name__ == "__main__":
     main()
