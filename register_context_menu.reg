@@ -1,50 +1,50 @@
 Windows Registry Editor Version 5.00
 
-; Для TXT файлов
-[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Susummarize]
-@="Суммаризировать через CLIS"
+; For TXT files
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Summarize]
+@="Summarize text with STT CLI"
 
-[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Susummarize\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\""
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Summarize\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
 
-; Для MD файлов
-[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Susummarize]
-@="Суммаризировать через CLIS"
+; For MD files
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Summarize]
+@="Summarize text with STT CLI"
 
-[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Susummarize\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\""
+[HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Summarize\command]
+@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
 
-; Для MD файлов
+; For MD files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT AddContext]
-@="Добавить в контекст CLIS"
+@="Add context with STT CLI"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT AddContext\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\" join --output context.md"
+@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\" join --output context.md"
 
-; Для TXT файлов
+; For TXT files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing]
-@="Обработать через STT"
+@="Process file with STT"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
 
-; Для XML файлов
+; For XML files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.xml\Shell\STT Processing XML]
-@="Обработать через STT"
+@="Process file with STT"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.xml\Shell\STT Processing XML\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
 
-; Для MP3 файлов
+; For MP3 files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing]
-@="Обработать через STT"
+@="Process file with STT"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
 
-; Для JSONL файлов
+; For JSONL files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.jsonl\Shell\STT Processing]
-@="Парсить JSONL"
+@="Parse JSONL"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.jsonl\Shell\STT Processing\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\work\\sttcli\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
