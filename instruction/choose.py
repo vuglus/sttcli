@@ -2,6 +2,7 @@ def choose_instruction(config, user_enabled = True):
     """
     Спрашивает у пользователя, какую инструкцию применять, если не передано через CLI.
     Берёт список ключей из config['instructions'].
+    Возвращает саму инструкцию, а не её тип.
     """
     instr_dict = config.get("instructions", {})
     if not instr_dict:
@@ -10,19 +11,31 @@ def choose_instruction(config, user_enabled = True):
     instructions = list(instr_dict.keys())
 
     print("Выберите инструкцию анализа:")
-    if user_enabled : 
+    if user_enabled :
         print("0. Ввести вручную")
 
     for i, instr in enumerate(instructions, 1):
         print(f"{i}. {instr}")
 
     while True:
-        choice = input("Введите номер инструкции: ").strip()
+        choice = input("Введите номер инструкции (q для выхода): ").strip()
             
-        if choice.isdigit():
-            if int(choice) == 0: 
+        if choice.lower() == 'q':
+            print("Выход из программы.")
+            exit(0)
+        elif choice.isdigit():
+            if int(choice) == 0:
+                manual_prompt = input("Введите ваш промпт: ").strip()
+                # Для ручного ввода возвращаем ключ 'manual'
+                instr_dict['manual'] = manual_prompt
                 return 'manual'
             idx = int(choice) - 1
             if 0 <= idx < len(instructions):
-                return instructions[idx]
+                instruction_key = instructions[idx]
+                # Проверяем, является ли инструкция служебной
+                if instruction_key == 'join':
+                    # Возвращаем ключ для служебных инструкций
+                    return instruction_key
+                # Возвращаем саму инструкцию
+                return instr_dict[instruction_key]
         print("Неверный ввод, попробуйте снова.")
