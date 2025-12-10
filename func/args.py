@@ -12,30 +12,32 @@ def parse_args(argv):
         print("Использование: python summarize_file.py <файл> [инструкция] [--output файл]")
         sys.exit(1)
 
-    input_path = argv[1]
+    input_path = None
     instruction = None
     output_file = None
 
-    args = argv[2:]
-
-    i = 0
-    while i < len(args):
-        arg = args[i]
-
-        if arg == "--output":
-            if i + 1 < len(args):
-                output_file = args[i + 1]
-                i += 2
+    # Parse command line arguments
+    i = 1
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--output" and i + 1 < len(argv):
+            # Only accept the next argument as output_file if it doesn't start with --
+            if not argv[i + 1].startswith("--"):
+                output_file = argv[i + 1]
+                i += 2  # Skip next argument
                 continue
             else:
-                print("❌ Ошибка: после --output должен быть указан файл")
-                sys.exit(1)
-
-        # Если это не флаг, и инструкция ещё не выбрана
-        if instruction is None and not arg.startswith("--"):
+                # If the next argument starts with --, we ignore this --output flag
+                i += 1
+        elif not input_path and not arg.startswith("--"):
+            input_path = arg
+        elif not instruction and not arg.startswith("--"):
             instruction = arg
-
         i += 1
+    
+    if not input_path:
+        print("Использование: python summarize_file.py <файл> [инструкция] [--output файл]")
+        sys.exit(1)
 
     if not os.path.exists(input_path):
         print(f"Файл не найден: {input_path}")
@@ -44,7 +46,7 @@ def parse_args(argv):
     if output_file is not None:
         output_file = _resolve_output_path(input_path, output_file)
 
-    return input_path, instruction, output_file    
+    return input_path, instruction, output_file
 
 def _resolve_output_path(input_path: str, output_file: str) -> str:
     """

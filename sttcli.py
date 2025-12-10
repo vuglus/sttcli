@@ -16,8 +16,8 @@ def save_local(output_file, content):
 
     print(f"💾 Файл сохранён: {output_file}")
 
-def main():
-    config = load_config()
+def parse_args():
+    """Parse command line arguments and return (file_path, output_path, save_log)"""
     file_path = None
     output_path = None
     save_log = False
@@ -29,8 +29,11 @@ def main():
         if arg == "--log":
             save_log = True
         elif arg == "--output" and i + 1 < len(sys.argv):
-            output_path = sys.argv[i + 1]
-            i += 1  # Skip next argument
+            # Only accept the next argument as output_path if it doesn't start with --
+            if not sys.argv[i + 1].startswith("--"):
+                output_path = sys.argv[i + 1]
+                i += 1  # Skip next argument
+            # If the next argument starts with --, we ignore this --output flag
         elif not file_path and not arg.startswith("--"):
             file_path = arg
         i += 1
@@ -38,7 +41,13 @@ def main():
     if not file_path:
         print("Usage: python sttcli.py <path-to-mp3> [--log] [--output <output-file>]")
         sys.exit(1)
+        
+    return file_path, output_path, save_log
 
+def main():
+    config = load_config()
+    file_path, output_path, save_log = parse_args()
+    
     base = os.path.splitext(file_path)[0]
     # 1. Upload file to Object Storage
     file_url = upload_to_storage(config, file_path)
