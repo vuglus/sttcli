@@ -1,40 +1,43 @@
 def choose_instruction(config, user_enabled = True):
     """
     Спрашивает у пользователя, какую инструкцию применять, если не передано через CLI.
-    Берёт список ключей из config['instructions'].
-    Возвращает саму инструкцию, а не её тип.
+    По умолчанию выбирает тип manual и ждет ввода текста.
+    Если введена цифра или введённый текст инструкция то выбирать её.
     """
     instr_dict = config.get("instructions", {})
-    if not instr_dict:
-        raise ValueError("В конфиге нет блока 'instructions'")
-
     instructions = list(instr_dict.keys())
-
-    print("Выберите инструкцию анализа:")
-    if user_enabled :
-        print("0. Ввести вручную")
-
+    
+    # Показываем доступные инструкции
+    print("Доступные инструкции:")
     for i, instr in enumerate(instructions, 1):
         print(f"{i}. {instr}")
-
-    while True:
-        choice = input("Введите номер инструкции (q для выхода): ").strip()
-            
-        if choice.lower() in [ 'q', 'quit', 'e', 'exit']:
-            return ('quit', '')
-
-        elif choice.isdigit():
-            if int(choice) == 0:
-                manual_prompt = input("Введите ваш промпт: ").strip()
-                # Для ручного ввода возвращаем кортеж с 'manual' и промптом
-                return ('manual', manual_prompt)
-            idx = int(choice) - 1
-            if 0 <= idx < len(instructions):
-                instruction_key = instructions[idx]
-                # Проверяем, является ли инструкция служебной
-                if instruction_key == 'join':
-                    # Возвращаем ключ для служебных инструкций
-                    return (instruction_key, instr_dict[instruction_key])
-                # Возвращаем саму инструкцию
+    print("Или введите свой промпт:")
+    
+    user_input = input().strip()
+    
+    # Проверяем, является ли ввод числом (выбор инструкции по номеру)
+    if user_input.isdigit():
+        idx = int(user_input) - 1
+        if 0 <= idx < len(instructions):
+            instruction_key = instructions[idx]
+            # Проверяем, является ли инструкция служебной
+            if instruction_key == 'join':
+                # Возвращаем ключ для служебных инструкций
                 return (instruction_key, instr_dict[instruction_key])
-        print("Неверный ввод, попробуйте снова.")
+            # Возвращаем саму инструкцию
+            return (instruction_key, instr_dict[instruction_key])
+    
+    # Проверяем, совпадает ли ввод с названием инструкции
+    if user_input in instr_dict:
+        instruction_key = user_input
+        # Проверяем, является ли инструкция служебной
+        if instruction_key == 'join':
+            # Возвращаем ключ для служебных инструкций
+            return (instruction_key, instr_dict[instruction_key])
+        # Возвращаем саму инструкцию
+        return (instruction_key, instr_dict[instruction_key])
+    if user_input in ['quit', 'exit', 'q', 'e']:
+        return ('quit', user_input)
+    
+    # Если ввод не совпадает ни с одной инструкцией, считаем его промптом
+    return ('manual', user_input)

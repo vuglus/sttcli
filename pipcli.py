@@ -28,7 +28,7 @@ def main():
 
     # Отображаем контекст
     if context != "":
-        draw_context(context)
+        draw_context(context, "Контекст проекта загружен из файла")
 
     # Получаем метаданные файла
     file_name = os.path.basename(input_path)
@@ -43,30 +43,28 @@ def main():
     meta_info = f"Файл: {file_name}\nДата создания: {created_date}\n\n"
     summary = meta_info + text
     user_prompt = ''
-
-    if instruction is None:
-        instruction, user_prompt  = choose_instruction(config)
     
-
     while True:
+        draw_context(summary, "Результат")
         # Выбираем инструкцию
+        if instruction is None:
+            instruction, user_prompt  = choose_instruction(config)        
+        # Если выбрана инструкция quit, выходим из цикла
+        if instruction == 'quit': 
+            break
+        # Если нет то продолжаем цикл
         print(f"→ Генерирую ответ на {instruction} запрос:")
-        draw_context(user_prompt)
+        draw_context(user_prompt, "Запрос")
 
         summary = summarizer.summarize(
             summary,
             instruction_type = instruction,  # Keep 'manual' as instruction_type
             context = context,
             manual_prompt = user_prompt  # Pass the manual prompt separately
-        )        
-        draw_context(summary)
-        next_instruction, user_prompt  = choose_instruction(config)
-        # Если выбрана инструкция quit, выходим из цикла
-        if next_instruction == 'quit': 
-            break
-        # Если нет то продолжаем цикл
-        instruction = next_instruction
-
+        )
+        context += "\n\n" + summary
+        # Очистка инструкции чтобы можно было выбрать другую инструкцию
+        instruction = None
 
     # После завершения manual режима выходим из программы
     print("Работа в режиме chat завершена.")

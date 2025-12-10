@@ -58,13 +58,14 @@ if (-not $OutputFile) {
     # Generate timestamp in DD-MM-YY-HH-MM-SS format
     $timestamp = Get-Date -Format "dd-MM-yy-HH-mm-ss"
     $base = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
+    $baseDir = Split-Path $FilePath
     
     # Set default output file based on input file extension
     switch ($FileExt) {
-        ".mp3"   { $OutputFile = "${base}_${timestamp}.txt" }
-        ".md"    { $OutputFile = "${base}_${timestamp}.md" }
-        ".txt"   { $OutputFile = "${base}_${timestamp}.txt" }
-        ".xml"   { $OutputFile = "${base}_${timestamp}.xml" }
+        ".mp3"   { $OutputFile = "$baseDir/${base}_${timestamp}.txt" }
+        ".md"    { $OutputFile = "$baseDir/${base}_${timestamp}.md" }
+        ".txt"   { $OutputFile = "$baseDir/${base}_${timestamp}.txt" }
+        ".xml"   { $OutputFile = "$baseDir/${base}_${timestamp}.xml" }
         default {
             Write-Host "Unsupported file extension: $FileExt"
             Write-Host "Supported extensions are .mp3, .txt, .xml and .jsonl"
@@ -82,29 +83,32 @@ switch ($FileExt) {
         break
     }
     ".mp3"   {
+        # Create diarization file path
+        $base = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
+        $folder = Split-Path $FilePath
+        $diaFile = Join-Path $folder "$base.dia"
+        
+        # Run diarization script through WSL in background
+        Write-Host "Starting diarization processing through WSL in background..." -ForegroundColor Yellow
+        $job = Start-Job -ScriptBlock {
+            param($mp3File, $diaFile)
+            & wsl -e bash "/mnt/d/Work/dia/run_diarization.sh" "$mp3File" "$diaFile"
+        } -ArgumentList $FilePath, $diaFile
+        
         # Pass --output parameter to sttcli.py
         $sttArgs = @($Args) + "--output", "$OutputFile"
         python "$ScriptDir\sttcli.py" "$FilePath" @sttArgs
-        if ($LASTEXITCODE -eq 0) {
-            # Run pipcli.py on the output file
-            # Remove --output from Args before passing to pipcli.py
-            $pipArgs = @()
-            $skipNext = $false
-            foreach ($arg in $Args) {
-                if ($skipNext) {
-                    $skipNext = $false
-                    continue
-                }
-                if ($arg -eq "--output") {
-                    $skipNext = $true
-                    continue
-                }
-                $pipArgs += $arg
-            }
-            # Pass --output parameter to pipcli.py
-            $pipArgs += "--output", "$OutputFile"
-            python "$ScriptDir\pipcli.py" "$OutputFile" @pipArgs
-        }
+        
+        # Wait for diarization job to complete
+        Write-Host "Waiting for diarization job to complete..." -ForegroundColor Yellow
+        Wait-Job $job
+        
+        # Run diamix script to combine diarization and STT results
+        Write-Host "Running diamix script..." -ForegroundColor Yellow
+        & D:\Work\dia\run_diamix.ps1 "$OutputFile"
+        
+        # Run pipcli.py after diamix
+        python "$ScriptDir\pipcli.py" "$OutputFile"
         break
     }
     default {

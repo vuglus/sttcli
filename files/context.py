@@ -26,12 +26,12 @@ def load_context_for(target_project_file: str) -> str:
 
     return ""
 
-def draw_context(context: str):
+def draw_context(context: str, headline: str):
     console = Console()
 
     # выводим рамку и заголовок
     console.print("═══════════════════════════════════════════════", style="cyan")
-    console.print("              📌  ACTIVE CONTEXT", style="bold cyan")
+    console.print(f"              📌  {headline}", style="bold cyan")
     console.print("═══════════════════════════════════════════════\n", style="cyan")
 
     # создаем Markdown объект
