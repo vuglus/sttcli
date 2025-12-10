@@ -4,13 +4,20 @@ class Summarizer:
     def __init__(self, config):
         self.config = config
 
-    def summarize(self, text, instruction_type, context=""):
+    def summarize(self, text, instruction_type, context="", manual_prompt=None):
         chunks = self.chunk_text(text)
         partial_summaries = []
 
+        # If manual_prompt is provided, use it directly as the instruction
+        if manual_prompt is not None:
+            instruction = manual_prompt
+        else:
+            # Otherwise, look up the instruction in the config
+            instruction = self.config["instructions"][instruction_type]
+
         for idx, chunk in enumerate(chunks, start=1):
             print(f"Summarizing chunk {idx}/{len(chunks)}...")
-            partial = self.chunk_summarize(chunk, self.config["instructions"][instruction_type], context)
+            partial = self.chunk_summarize(chunk, instruction, context)
             partial_summaries.append(f"### Chunk {idx}\n{partial}")
 
         combined_text = "\n\n".join(partial_summaries)

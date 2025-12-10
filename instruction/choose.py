@@ -26,9 +26,8 @@ def choose_instruction(config, user_enabled = True):
         elif choice.isdigit():
             if int(choice) == 0:
                 manual_prompt = input("Введите ваш промпт: ").strip()
-                # Для ручного ввода возвращаем ключ 'manual'
-                instr_dict['manual'] = manual_prompt
-                return 'manual'
+                # Для ручного ввода возвращаем кортеж с 'manual' и промптом
+                return ('manual', manual_prompt)
             idx = int(choice) - 1
             if 0 <= idx < len(instructions):
                 instruction_key = instructions[idx]

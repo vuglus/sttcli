@@ -8,6 +8,7 @@ from files.context import load_context_for, draw_context
 from func.args import parse_args
 from models import get_model
 
+
 def main():
     input_path, instruction, output_file = parse_args(sys.argv)
 
@@ -50,8 +51,28 @@ def main():
         instruction = choose_instruction(config)
 
     # Режим чата для manual инструкций
-    if instruction == 'manual':
+    if instruction == 'manual' or (isinstance(instruction, tuple) and instruction[0] == 'manual'):
+        # Проверяем, есть ли начальный промпт
+        if isinstance(instruction, tuple) and len(instruction) > 1:
+            initial_prompt = instruction[1]
+        else:
+            initial_prompt = None
+        
         previous_result = None
+        
+        # Если есть начальный промпт, выполняем его сразу
+        if initial_prompt:
+            print(f"→ Генерирую ответ на запрос '{initial_prompt}'...")
+            summary = summarizer.summarize(
+                text_with_meta,
+                instruction_type = initial_prompt,  # Use the manual prompt as the instruction
+                context = context
+            )
+            
+            draw_context(summary)
+            previous_result = summary
+
+        # Затем запрашиваем новые промпты
         while True:
             # Если есть предыдущий результат, добавляем его к тексту
             if previous_result:
@@ -67,13 +88,16 @@ def main():
             print(f"→ Генерирую ответ на запрос '{user_prompt}'...")
             summary = summarizer.summarize(
                 chat_text,
-                instruction_type = 'manual',
-                context = context,
-                manual_prompt = user_prompt
+                instruction_type = user_prompt,  # Use the manual prompt as the instruction
+                context = context
             )
             
-            print(f"\nРезультат:\n{summary}\n")
+            draw_context(summary)
             previous_result = summary
+        
+        # После завершения manual режима выходим из программы
+        print("Работа в режиме manual завершена.")
+        return
 
     print(f"→ Генерирую саммари с инструкцией '{instruction}'...")
     summary = summarizer.summarize(
@@ -87,3 +111,6 @@ def main():
 
     # Сохраняем результат
     save_local(output_file, summary)
+
+if __name__ == "__main__":
+    main()
