@@ -16,7 +16,11 @@ class Summarizer:
         combined_text = "\n\n".join(partial_summaries)
         if len(chunks) > 1:
             print("Generating final summary...")
-            return self.chunk_summarize(combined_text, self.config["instructions"]["join"])
+            # Используем служебную инструкцию join из отдельной настройки
+            join_instruction = self.config.get("service_instructions", {}).get("join")
+            if not join_instruction:
+                raise ValueError("В конфиге нет служебной инструкции 'join'")
+            return self.chunk_summarize(combined_text, join_instruction)
         return combined_text
 
     def chunk_summarize(self, text, instruction, context=""):

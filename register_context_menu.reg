@@ -5,46 +5,46 @@ Windows Registry Editor Version 5.00
 @="Summarize text with STT CLI"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Summarize\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\Work\\sttcli\\sttcli.ps1\" \"%1\""
 
 ; For MD files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Summarize]
 @="Summarize text with STT CLI"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT Summarize\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\Work\\sttcli\\sttcli.ps1\" \"%1\""
 
 ; For MD files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT AddContext]
 @="Add context with STT CLI"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.md\Shell\STT AddContext\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\" join --output context.md"
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\Work\\sttcli\\sttcli.ps1\" \"%1\" join --output context.md"
 
 ; For TXT files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing]
 @="Process file with STT"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.txt\Shell\STT Processing\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\Work\\sttcli\\sttcli.ps1\" \"%1\""
 
 ; For XML files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.xml\Shell\STT Processing XML]
 @="Process file with STT"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.xml\Shell\STT Processing XML\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\Work\\sttcli\\sttcli.ps1\" \"%1\""
 
 ; For MP3 files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing]
 @="Process file with STT"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.mp3\Shell\STT Processing\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\Work\\sttcli\\sttcli.ps1\" \"%1\""
 
 ; For JSONL files
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.jsonl\Shell\STT Processing]
 @="Parse JSONL"
 
 [HKEY_CLASSES_ROOT\SystemFileAssociations\.jsonl\Shell\STT Processing\command]
-@="powershell.exe -ExecutionPolicy Bypass -File \"%CD%\\sttcli_context.ps1\" \"%1\""
+@="powershell.exe -ExecutionPolicy Bypass -File \"D:\\Work\\sttcli\\sttcli.ps1\" \"%1\""
