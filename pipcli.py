@@ -65,8 +65,9 @@ def main():
             print(f"→ Генерирую ответ на запрос '{initial_prompt}'...")
             summary = summarizer.summarize(
                 text_with_meta,
-                instruction_type = initial_prompt,  # Use the manual prompt as the instruction
-                context = context
+                instruction_type = 'manual',  # Keep 'manual' as instruction_type
+                context = context,
+                manual_prompt = initial_prompt  # Pass the manual prompt separately
             )
             
             draw_context(summary)
@@ -88,8 +89,9 @@ def main():
             print(f"→ Генерирую ответ на запрос '{user_prompt}'...")
             summary = summarizer.summarize(
                 chat_text,
-                instruction_type = user_prompt,  # Use the manual prompt as the instruction
-                context = context
+                instruction_type = 'manual',  # Keep 'manual' as instruction_type
+                context = context,
+                manual_prompt = user_prompt  # Pass the manual prompt separately
             )
             
             draw_context(summary)
