@@ -3,17 +3,25 @@ class Summarizer:
     """Базовый класс для суммаризации текста."""
     def __init__(self, config):
         self.config = config
+        # Объединяем instructions и service_instructions в один словарь
+        self.all_instructions = {}
+        self.all_instructions.update(config["instructions"])
+        self.all_instructions.update(config["service_instructions"])
 
     def summarize(self, text, instruction_type, context="", manual_prompt=None):
         chunks = self.chunk_text(text)
         partial_summaries = []
 
         # If manual_prompt is provided, use it directly as the instruction
-        if manual_prompt is not None:
+        if manual_prompt.strip() != '':
             instruction = manual_prompt
         else:
-            # Otherwise, look up the instruction in the config
-            instruction = self.config["instructions"][instruction_type]
+            # Otherwise, look up the instruction in the combined config
+            instruction = self.all_instructions.get(instruction_type)
+            
+        # Проверяем, что инструкция не пустая
+        if not instruction or not instruction.strip():
+            raise ValueError(f"Instruction '{instruction_type}' is empty or contains only whitespace")
 
         for idx, chunk in enumerate(chunks, start=1):
             print(f"Summarizing chunk {idx}/{len(chunks)}...")
@@ -23,10 +31,11 @@ class Summarizer:
         combined_text = "\n\n".join(partial_summaries)
         if len(chunks) > 1:
             print("Generating final summary...")
-            # Используем служебную инструкцию join из отдельной настройки
-            join_instruction = self.config.get("service_instructions", {}).get("join")
+            # Используем служебную инструкцию join из объединенного словаря
+            join_instruction = self.all_instructions.get("join")
             if not join_instruction:
                 raise ValueError("В конфиге нет служебной инструкции 'join'")
+                
             return self.chunk_summarize(combined_text, join_instruction)
         return combined_text
 

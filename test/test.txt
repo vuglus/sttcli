@@ -1,0 +1,2 @@
+This is a test file for checking if our fix works correctly.
+We are testing the summarization functionality with YandexGPT.

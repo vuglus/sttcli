@@ -8,7 +8,6 @@ from files.context import load_context_for, draw_context
 from func.args import parse_args
 from models import get_model
 
-
 def main():
     input_path, instruction, output_file = parse_args(sys.argv)
 
@@ -42,74 +41,40 @@ def main():
 
     # Добавляем имя и дату создания файла в начало текста
     meta_info = f"Файл: {file_name}\nДата создания: {created_date}\n\n"
-    text_with_meta = meta_info + text
+    summary = meta_info + text
+    user_prompt = ''
 
-    # Выбираем инструкцию
-    if len(sys.argv) >= 3:
-        instruction = sys.argv[2]
-    else:
-        instruction = choose_instruction(config)
+    if instruction is None:
+        instruction, user_prompt  = choose_instruction(config)
+    
 
-    # Режим чата для manual инструкций
-    if instruction == 'manual' or (isinstance(instruction, tuple) and instruction[0] == 'manual'):
-        # Проверяем, есть ли начальный промпт
-        if isinstance(instruction, tuple) and len(instruction) > 1:
-            initial_prompt = instruction[1]
-        else:
-            initial_prompt = None
-        
-        previous_result = None
-        
-        # Если есть начальный промпт, выполняем его сразу
-        if initial_prompt:
-            print(f"→ Генерирую ответ на запрос '{initial_prompt}'...")
-            summary = summarizer.summarize(
-                text_with_meta,
-                instruction_type = 'manual',  # Keep 'manual' as instruction_type
-                context = context,
-                manual_prompt = initial_prompt  # Pass the manual prompt separately
-            )
-            
-            draw_context(summary)
-            previous_result = summary
+    while True:
+        # Выбираем инструкцию
+        print(f"→ Генерирую ответ на {instruction} запрос:")
+        draw_context(user_prompt)
 
-        # Затем запрашиваем новые промпты
-        while True:
-            # Если есть предыдущий результат, добавляем его к тексту
-            if previous_result:
-                chat_text = f"{text_with_meta}\n\nПредыдущий результат:\n{previous_result}"
-            else:
-                chat_text = text_with_meta
-            
-            # Получаем уточняющий запрос от пользователя
-            user_prompt = input("Введите уточняющий запрос (или 'exit' для выхода): ").strip()
-            if user_prompt.lower() == 'exit' or user_prompt.lower() == 'e':
-                break
-            
-            print(f"→ Генерирую ответ на запрос '{user_prompt}'...")
-            summary = summarizer.summarize(
-                chat_text,
-                instruction_type = 'manual',  # Keep 'manual' as instruction_type
-                context = context,
-                manual_prompt = user_prompt  # Pass the manual prompt separately
-            )
-            
-            draw_context(summary)
-            previous_result = summary
-        
-        # После завершения manual режима выходим из программы
-        print("Работа в режиме manual завершена.")
-        return
+        summary = summarizer.summarize(
+            summary,
+            instruction_type = instruction,  # Keep 'manual' as instruction_type
+            context = context,
+            manual_prompt = user_prompt  # Pass the manual prompt separately
+        )        
+        draw_context(summary)
+        next_instruction, user_prompt  = choose_instruction(config)
+        # Если выбрана инструкция quit, выходим из цикла
+        if next_instruction == 'quit': 
+            break
+        # Если нет то продолжаем цикл
+        instruction = next_instruction
 
-    print(f"→ Генерирую саммари с инструкцией '{instruction}'...")
-    summary = summarizer.summarize(
-        text_with_meta,
-        instruction_type = instruction,
-        context = context
-    )
+
+    # После завершения manual режима выходим из программы
+    print("Работа в режиме chat завершена.")
 
     if output_file is None:
-        output_file = base + f".{instruction}.md"
+        # Generate timestamp in DD-MM-YY-HH-SS format
+        timestamp = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S")
+        output_file = f"{base}_{timestamp}.{instruction}.md"
 
     # Сохраняем результат
     save_local(output_file, summary)

@@ -4,6 +4,14 @@ import openai
 class YandexGPTSummarizer(Summarizer):
     """Суммаризация через YandexGPT."""
     def chunk_summarize(self, text, instruction, context=""):
+        # Проверяем, что текст не пустой
+        if not text or not text.strip():
+            raise ValueError("Input text is empty or contains only whitespace")
+            
+        # Проверяем, что инструкция не пустая
+        if not instruction or not instruction.strip():
+            raise ValueError("Instruction is empty or contains only whitespace")
+            
         if context:
             instruction += "\n\n" + context
 

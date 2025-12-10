@@ -52,34 +52,65 @@ if (Test-Path $activatePath) {
     exit 1
 }
 
-# Process --output parameter
-if ($Output) {
-    # Redirect output to the specified file
+# Determine output file path
+$OutputFile = $Output
+if (-not $OutputFile) {
+    # Generate timestamp in DD-MM-YY-HH-MM-SS format
+    $timestamp = Get-Date -Format "dd-MM-yy-HH-mm-ss"
+    $base = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
+    
+    # Set default output file based on input file extension
     switch ($FileExt) {
-        ".md"    { python "$ScriptDir\pipcli.py" "$FilePath" @Args > "$Output" 2>&1 }
-        ".txt"   { python "$ScriptDir\pipcli.py" "$FilePath" @Args > "$Output" 2>&1 }
-        ".xml"   { python "$ScriptDir\pipcli.py" "$FilePath" @Args > "$Output" 2>&1 }
-        ".mp3"   { python "$ScriptDir\sttcli.py" "$FilePath" @Args > "$Output" 2>&1 }
-        
+        ".mp3"   { $OutputFile = "${base}_${timestamp}.txt" }
+        ".md"    { $OutputFile = "${base}_${timestamp}.md" }
+        ".txt"   { $OutputFile = "${base}_${timestamp}.txt" }
+        ".xml"   { $OutputFile = "${base}_${timestamp}.xml" }
         default {
             Write-Host "Unsupported file extension: $FileExt"
             Write-Host "Supported extensions are .mp3, .txt, .xml and .jsonl"
             exit 1
         }
     }
-} else {
-    # No output file specified, run normally
-    switch ($FileExt) {
-        ".md"    { python "$ScriptDir\pipcli.py" "$FilePath" @Args }
-        ".txt"   { python "$ScriptDir\pipcli.py" "$FilePath" @Args }
-        ".xml"   { python "$ScriptDir\pipcli.py" "$FilePath" @Args }
-        ".mp3"   { python "$ScriptDir\sttcli.py" "$FilePath" @Args }
-        
-        default {
-            Write-Host "Unsupported file extension: $FileExt"
-            Write-Host "Supported extensions are .mp3, .txt, .xml and .jsonl"
-            exit 1
+}
+
+# Process file based on extension
+switch ($FileExt) {
+    {($_ -eq ".md") -or ($_ -eq ".txt") -or ($_ -eq ".xml")} {
+        # Pass --output parameter to pipcli.py
+        $pipArgs = @($Args) + "--output", "$OutputFile"
+        python "$ScriptDir\pipcli.py" "$FilePath" @pipArgs
+        break
+    }
+    ".mp3"   {
+        # Pass --output parameter to sttcli.py
+        $sttArgs = @($Args) + "--output", "$OutputFile"
+        python "$ScriptDir\sttcli.py" "$FilePath" @sttArgs
+        if ($LASTEXITCODE -eq 0) {
+            # Run pipcli.py on the output file
+            # Remove --output from Args before passing to pipcli.py
+            $pipArgs = @()
+            $skipNext = $false
+            foreach ($arg in $Args) {
+                if ($skipNext) {
+                    $skipNext = $false
+                    continue
+                }
+                if ($arg -eq "--output") {
+                    $skipNext = $true
+                    continue
+                }
+                $pipArgs += $arg
+            }
+            # Pass --output parameter to pipcli.py
+            $pipArgs += "--output", "$OutputFile"
+            python "$ScriptDir\pipcli.py" "$OutputFile" @pipArgs
         }
+        break
+    }
+    default {
+        Write-Host "Unsupported file extension: $FileExt"
+        Write-Host "Supported extensions are .mp3, .txt, .xml and .jsonl"
+        exit 1
     }
 }
 Write-Host ""

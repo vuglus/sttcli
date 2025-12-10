@@ -20,9 +20,9 @@ def choose_instruction(config, user_enabled = True):
     while True:
         choice = input("Введите номер инструкции (q для выхода): ").strip()
             
-        if choice.lower() == 'q':
-            print("Выход из программы.")
-            exit(0)
+        if choice.lower() in [ 'q', 'quit', 'e', 'exit']:
+            return ('quit', '')
+
         elif choice.isdigit():
             if int(choice) == 0:
                 manual_prompt = input("Введите ваш промпт: ").strip()
@@ -34,7 +34,7 @@ def choose_instruction(config, user_enabled = True):
                 # Проверяем, является ли инструкция служебной
                 if instruction_key == 'join':
                     # Возвращаем ключ для служебных инструкций
-                    return instruction_key
+                    return (instruction_key, instr_dict[instruction_key])
                 # Возвращаем саму инструкцию
-                return instr_dict[instruction_key]
+                return (instruction_key, instr_dict[instruction_key])
         print("Неверный ввод, попробуйте снова.")

@@ -36,7 +36,6 @@ def draw_context(context: str):
 
     # создаем Markdown объект
     md = Markdown(context)
-
     # выводим красиво
     console.print(md)
 
