@@ -4,7 +4,9 @@ def choose_instruction(config, user_enabled = True):
     По умолчанию выбирает тип manual и ждет ввода текста.
     Если введена цифра или введённый текст инструкция то выбирать её.
     """
-    instr_dict = config.get("instructions", {})
+    instr_dict = {}
+    instr_dict.update(config.get("instructions", {}))
+    instr_dict.update(config.get("service_instructions", {})) 
     instructions = list(instr_dict.keys())
     
     # Показываем доступные инструкции

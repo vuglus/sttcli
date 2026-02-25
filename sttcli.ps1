@@ -105,7 +105,7 @@ switch ($FileExt) {
         
         # Run diamix script to combine diarization and STT results
         Write-Host "Running diamix script..." -ForegroundColor Yellow
-        & D:\Work\dia\run_diamix.ps1 "$OutputFile"
+        & D:\Work\dia\run_diamix.ps1 "$OutputFile" "$diaFile"
         
         # Run pipcli.py after diamix
         python "$ScriptDir\pipcli.py" "$OutputFile"

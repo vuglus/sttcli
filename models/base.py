@@ -44,7 +44,7 @@ class Summarizer:
         raise NotImplementedError("Must implement chunk_summarize in subclass")
 
     @staticmethod
-    def chunk_text(text, max_chars=70_000):
+    def chunk_text(text, max_chars=50_000):
         chunks = []
         start = 0
         while start < len(text):
