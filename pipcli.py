@@ -9,7 +9,7 @@ from func.args import parse_args
 from models import get_model
 
 def main():
-    input_path, instruction, output_file = parse_args(sys.argv)
+    input_path, instruction, output_file, quit = parse_args(sys.argv)
 
     base, ext = os.path.splitext(input_path)
     # Загружаем конфиг
@@ -43,6 +43,7 @@ def main():
     meta_info = f"Файл: {file_name}\nДата создания: {created_date}\n\n"
     summary = meta_info + text
     user_prompt = ''
+    user_instruction = instruction
     
     while True:
         draw_context(summary, "Результат")
@@ -65,6 +66,8 @@ def main():
         context += "\n\n" + summary
         # Очистка инструкции чтобы можно было выбрать другую инструкцию
         instruction = None
+        if quit: 
+            break
 
     # После завершения manual режима выходим из программы
     print("Работа в режиме chat завершена.")
@@ -72,7 +75,7 @@ def main():
     if output_file is None:
         # Generate timestamp in DD-MM-YY-HH-SS format
         timestamp = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S")
-        output_file = f"{base}_{timestamp}.{instruction}.md"
+        output_file = f"{base}_{timestamp}.{user_instruction if user_instruction else instruction}.md"
 
     # Сохраняем результат
     save_local(output_file, summary)

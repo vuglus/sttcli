@@ -6,7 +6,7 @@ param(
     [string]$Output,
 
     [Parameter(ValueFromRemainingArguments = $true)]
-    [string[]]$Args
+    [string[]]$RemainingArgs
 )
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -32,6 +32,8 @@ if ($FileExt -eq ".mp3") {
                 Write-Host "Converted to mono MP3: $FilePath" -ForegroundColor Green
             } else {
                 Write-Host "Error: Failed to convert MP3 to mono" -ForegroundColor Red
+                Write-Host "Press any key to continue..."
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
                 exit 1
             }
         } else {
@@ -39,6 +41,9 @@ if ($FileExt -eq ".mp3") {
         }
     } catch {
         Write-Host "Warning: Could not verify MP3 channels. Proceeding with original file." -ForegroundColor Yellow
+        Write-Host "Press any key to continue..."
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        exit 1
     }
 }
 
@@ -49,6 +54,8 @@ if (Test-Path $activatePath) {
     . $activatePath
 } else {
     Write-Host "Error: Cannot find virtual environment: $activatePath"
+    Write-Host "Press any key to continue..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit 1
 }
 
@@ -69,6 +76,7 @@ if (-not $OutputFile) {
         default {
             Write-Host "Unsupported file extension: $FileExt"
             Write-Host "Supported extensions are .mp3, .txt, .xml and .jsonl"
+            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             exit 1
         }
     }
@@ -77,8 +85,8 @@ if (-not $OutputFile) {
 # Process file based on extension
 switch ($FileExt) {
     {($_ -eq ".md") -or ($_ -eq ".txt") -or ($_ -eq ".xml")} {
-        # Pass --output parameter to pipcli.py
-        $pipArgs = @($Args) + "--output", "$OutputFile"
+        # Pass -output parameter to pipcli.py
+        $pipArgs = @($RemainingArgs) + "--output", "$OutputFile"
         python "$ScriptDir\pipcli.py" "$FilePath" @pipArgs
         break
     }
@@ -95,9 +103,12 @@ switch ($FileExt) {
             & wsl -e bash "/mnt/d/Work/dia/run_diarization.sh" "$mp3File" "$diaFile"
         } -ArgumentList $FilePath, $diaFile
         
-        # Pass --output parameter to sttcli.py
-        $sttArgs = @($Args) + "--output", "$OutputFile"
+        # Pass -output parameter to sttcli.py
+        $sttArgs = @($RemainingArgs) + "--output", "$OutputFile"
         python "$ScriptDir\sttcli.py" "$FilePath" @sttArgs
+
+        # Pass -output parameter to sttcli.py        
+        python "$ScriptDir\pipcli.py" "$OutputFile" "--output" "$OutputFile" "--instruction normalize"
         
         # Wait for diarization job to complete
         Write-Host "Waiting for diarization job to complete..." -ForegroundColor Yellow
@@ -114,6 +125,7 @@ switch ($FileExt) {
     default {
         Write-Host "Unsupported file extension: $FileExt"
         Write-Host "Supported extensions are .mp3, .txt, .xml and .jsonl"
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         exit 1
     }
 }

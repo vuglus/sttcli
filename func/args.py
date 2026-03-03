@@ -9,12 +9,13 @@ def parse_args(argv):
     - output_file: путь к файлу вывода (или None)
     """
     if len(argv) < 2:
-        print("Использование: python summarize_file.py <файл> [инструкция] [--output файл]")
+        help()
         sys.exit(1)
 
     input_path = None
     instruction = None
     output_file = None
+    quit = False
 
     # Parse command line arguments
     i = 1
@@ -29,14 +30,18 @@ def parse_args(argv):
             else:
                 # If the next argument starts with --, we ignore this --output flag
                 i += 1
-        elif not input_path and not arg.startswith("--"):
-            input_path = arg
-        elif not instruction and not arg.startswith("--"):
-            instruction = arg
+                continue
+        if arg == "--quit":
+            quit = True
+        elif not arg.startswith("--"):
+            if not input_path:
+                input_path = arg
+            elif not instruction:
+                instruction = arg
         i += 1
     
     if not input_path:
-        print("Использование: python summarize_file.py <файл> [инструкция] [--output файл]")
+        help()
         sys.exit(1)
 
     if not os.path.exists(input_path):
@@ -46,7 +51,10 @@ def parse_args(argv):
     if output_file is not None:
         output_file = _resolve_output_path(input_path, output_file)
 
-    return input_path, instruction, output_file
+    return input_path, instruction, output_file, quit
+
+def help():
+    print("Использование: python pipcli.py <файл> [инструкция] [--output файл] --quit")
 
 def _resolve_output_path(input_path: str, output_file: str) -> str:
     """
