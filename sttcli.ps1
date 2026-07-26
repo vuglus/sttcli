@@ -1,3 +1,5 @@
+# Convert audio to text
+
 param(
     [Parameter(Mandatory = $true)]
     [string]$FilePath,
@@ -5,11 +7,17 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$Output,
 
+    [Parameter(Mandatory = $false)]
+    [switch]$ForceQuit,
+
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$RemainingArgs
 )
 
+chcp 65001 > $null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding  = [System.Text.Encoding]::UTF8
+$env:PYTHONIOENCODING="utf-8"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $FileExt = [IO.Path]::GetExtension($FilePath).ToLower()
@@ -107,8 +115,10 @@ switch ($FileExt) {
         $sttArgs = @($RemainingArgs) + "--output", "$OutputFile"
         python "$ScriptDir\sttcli.py" "$FilePath" @sttArgs
 
-        # Pass -output parameter to sttcli.py        
-        python "$ScriptDir\pipcli.py" "$OutputFile" "--output" "$OutputFile" "--instruction normalize"
+        # Create backup of raw STT result before diamix merge
+        $backupFile = "$OutputFile.bak"
+        Copy-Item "$OutputFile" "$backupFile" -Force
+        Write-Host "Backup of raw STT transcript saved: $backupFile" -ForegroundColor Green
         
         # Wait for diarization job to complete
         Write-Host "Waiting for diarization job to complete..." -ForegroundColor Yellow
@@ -116,19 +126,18 @@ switch ($FileExt) {
         
         # Run diamix script to combine diarization and STT results
         Write-Host "Running diamix script..." -ForegroundColor Yellow
-        & D:\Work\dia\run_diamix.ps1 "$OutputFile" "$diaFile"
-        
-        # Run pipcli.py after diamix
-        python "$ScriptDir\pipcli.py" "$OutputFile"
+        & D:\Work\dia\run_diamix.ps1 -TxtFile "$OutputFile" -DiaFile "$diaFile"
         break
     }
     default {
         Write-Host "Unsupported file extension: $FileExt"
         Write-Host "Supported extensions are .mp3, .txt, .xml and .jsonl"
-        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-        exit 1
+        break
     }
 }
-Write-Host ""
-Write-Host "Press any key to continue..."
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+if ( -not $ForceQuit) {
+    Write-Host ""
+    Write-Host "Press any key to continue..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}

@@ -1,10 +1,11 @@
+import logging
 import requests
 import time
 import urllib3
 import json
 import os
 
-def recognize_audio(config, file_uri: str):
+def recognize_audio(config, file_uri: str, logger: logging.Logger):
     """
     Распознаёт аудио с поддержкой нескольких спикеров и временных меток.
 
@@ -18,7 +19,7 @@ def recognize_audio(config, file_uri: str):
     folder_id = config["yacloud"]["folder_id"]
 
     file_name = os.path.basename(file_uri)
-    print(f"▶ Распознаём речь: {file_name}")
+    logger.info(f"▶ Распознаём речь: {file_name}")
 
     request_data = {
         "uri": file_uri,
@@ -62,15 +63,15 @@ def recognize_audio(config, file_uri: str):
     if not operation_id:
         raise RuntimeError("Operation ID not found in response")
 
-    print(f"▶ Operation ID: {operation_id}")
-    print("⏳ Ожидаем завершения распознавания...", end="", flush=True)
+    logger.info(f"▶ Operation ID: {operation_id}")
+    logger.info("⏳ Ожидаем завершения распознавания...")
 
     operation_url = f"https://operation.api.cloud.yandex.net/operations/{operation_id}"
 
     while True:
         op_response = requests.get(operation_url, headers=headers, verify=False)
         if op_response.status_code != 200:
-            print(f"\nОшибка проверки операции: {op_response.status_code}")
+            logger.info(f"\nОшибка проверки операции: {op_response.status_code}")
             time.sleep(10)
             continue
 

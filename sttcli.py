@@ -2,9 +2,17 @@
 import os
 import sys
 import yaml
+import logging
 from recognize.yandex import recognize_audio  # Import from separate file
 from files.upload import upload_to_storage
 from formats.format_asr import parse_asr_messages_to_dialogue
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 def load_config():
     with open("config.yml", "r", encoding="utf-8") as f:
@@ -14,7 +22,7 @@ def save_local(output_file, content):
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(content)
 
-    print(f"💾 Файл сохранён: {output_file}")
+    logger.info(f"💾 Файл сохранён: {output_file}")
 
 def parse_args():
     """Parse command line arguments and return (file_path, output_path, save_log)"""
@@ -39,7 +47,7 @@ def parse_args():
         i += 1
     
     if not file_path:
-        print("Usage: python sttcli.py <path-to-mp3> [--log] [--output <output-file>]")
+        logger.info("Usage: python sttcli.py <path-to-mp3> [--log] [--output <output-file>]")
         sys.exit(1)
         
     return file_path, output_path, save_log
@@ -50,10 +58,10 @@ def main():
     
     base = os.path.splitext(file_path)[0]
     # 1. Upload file to Object Storage
-    file_url = upload_to_storage(config, file_path)
+    file_url = upload_to_storage(config, file_path, logger)
 
     # 2. Recognize speech
-    response = recognize_audio(config, file_url)
+    response = recognize_audio(config, file_url, logger)
 
     # 2.1 Save raw JSONL only if --log flag is present
     if save_log:
@@ -70,7 +78,7 @@ def main():
         txt_path = base + ".txt"
     save_local(txt_path, text)
 
-    print("✅ Done!")
+    logger.info("✅ Done!")
 
 if __name__ == "__main__":
     main()
